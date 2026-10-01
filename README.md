@@ -10,6 +10,8 @@ An interactive, space-optimized recreation of the classic arcade game **Tetris**
 * **Proximity Collision Detection:** Advanced boundary checks prevent wall clipping.
 * **Score & Line Tracker:** Clear entire horizontal rows to rack up points and watch your stats update live on the dashboard panel.
 * **Memory-Optimized Flow:** Restructured architecture using custom function segment bridges and `PROGMEM` data flags to fit safely within the strict limitations of AVR dynamically allocated RAM.
+* **Integrated 8-Bit Audio Engine:** Native Game Boy inspired tone sweeps mapped via non-blocking frequency arrays on Digital Pin 6.
+
 
 ---
 
