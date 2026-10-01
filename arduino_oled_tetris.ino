@@ -10,6 +10,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 const int pinX = A0; 
 const int pinY = A1; 
 const int pinSW = 3; 
+const int pinBuzzer = 6; 
 
 #define GRID_WIDTH 10
 #define GRID_HEIGHT 20
@@ -62,6 +63,24 @@ bool checkCollision(int tx, int ty, int rot) {
   return false;
 }
 
+void playSound(int type) {
+  if (type == 1) {
+    tone(pinBuzzer, 880, 20); 
+  } else if (type == 2) {
+    tone(pinBuzzer, 440, 15); 
+  } else if (type == 3) {
+    tone(pinBuzzer, 587, 40);
+    delay(40);
+    tone(pinBuzzer, 880, 80);
+  } else if (type == 4) {
+    for (int i = 600; i > 150; i -= 25) {
+      tone(pinBuzzer, i, 15);
+      delay(15);
+    }
+    noTone(pinBuzzer);
+  }
+}
+
 void createNewPiece() {
   currentType = random(0, 7);
   currentRotation = 0;
@@ -69,6 +88,7 @@ void createNewPiece() {
   pieceY = -1; 
   if (checkCollision(pieceX, pieceY + 1, currentRotation)) {
     gameOver = true;
+    playSound(4);
   }
 }
 
@@ -85,6 +105,7 @@ void lockPiece() {
     }
   }
   
+  bool lineWasCleared = false;
   for (int y = GRID_HEIGHT - 1; y >= 0; y--) {
     bool fullLine = true;
     for (int x = 0; x < GRID_WIDTH; x++) {
@@ -93,15 +114,23 @@ void lockPiece() {
     if (fullLine) {
       linesCleared++;
       score += 100;
+      lineWasCleared = true;
       for (int moveY = y; moveY > 0; moveY--) {
         for (int x = 0; x < GRID_WIDTH; x++) {
           grid[moveY][x] = grid[moveY - 1][x];
         }
       }
-      for (int x = 0; x < GRID_WIDTH; x++) grid[0][x] = 0;
+      for (int x = 0; x < GRID_WIDTH; x++) grid[y][x] = 0; // FIXED HERE
       y++; 
     }
   }
+  
+  if (lineWasCleared) {
+    playSound(3);
+  } else {
+    playSound(2);
+  }
+  
   createNewPiece();
 }
 
@@ -159,6 +188,7 @@ void renderGameLayout() {
 
 void setup() {
   pinMode(pinSW, INPUT_PULLUP);
+  pinMode(pinBuzzer, OUTPUT);
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { for(;;); }
   randomSeed(analogRead(A2) + analogRead(A3));
   createNewPiece();
@@ -178,14 +208,14 @@ void loop() {
 
   if (currentTime - lastInputTime > inputDelay) {
     if (rx < 350) { 
-      if (!checkCollision(pieceX - 1, pieceY, currentRotation)) { pieceX--; lastInputTime = currentTime; }
+      if (!checkCollision(pieceX - 1, pieceY, currentRotation)) { pieceX--; playSound(1); lastInputTime = currentTime; }
     } 
     else if (rx > 670) { 
-      if (!checkCollision(pieceX + 1, pieceY, currentRotation)) { pieceX++; lastInputTime = currentTime; }
+      if (!checkCollision(pieceX + 1, pieceY, currentRotation)) { pieceX++; playSound(1); lastInputTime = currentTime; }
     }
     if (btn) { 
       int nextRot = (currentRotation + 1) % 4;
-      if (!checkCollision(pieceX, pieceY, nextRot)) { currentRotation = nextRot; lastInputTime = currentTime; }
+      if (!checkCollision(pieceX, pieceY, nextRot)) { currentRotation = nextRot; playSound(1); lastInputTime = currentTime; }
     }
   }
 
