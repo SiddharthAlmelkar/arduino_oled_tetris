@@ -19,7 +19,7 @@ An interactive, space-optimized recreation of the classic arcade game **Tetris**
 
 | Component | Component Pin | Arduino Pin |
 | :--- | :--- | :--- |
-| | Buzzer | +ve | 6 |
+| |Buzzer | +ve | 6 |
 | **0.96" I2C OLED Display** | GND | GND |
 | | VDD / VCC | 5V |
 | | SCK / SCL | A5 |
